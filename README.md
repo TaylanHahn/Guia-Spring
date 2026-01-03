@@ -9,3 +9,8 @@ Reúne **conceitos essenciais**, **exemplos práticos** e **anotações organiza
 🟡 [Spring Intermediário](./documentacao/intermediario.md)
 
 🔴 [Spring Avançado](./documentacao/avancado.md)
+
+...
+
+> **Contribuições são muito bem-vindas!** 💚  
+> Se quiser melhorar este guia, corrigir algo ou adicionar novos conteúdos e exemplos, fique à vontade para abrir uma **issue** ou enviar um **pull request**.
