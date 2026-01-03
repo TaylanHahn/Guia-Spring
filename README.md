@@ -1,6 +1,6 @@
 ## Spring Boot ☕🌱
 ### Guia para referência e uso 
 
-- 🟢 [Spring Básico](./basico.md)
-- 🟡 [Spring Intermediário](./intermediario.md)
-- 🔴 [Spring Avançado](./avancado.md)
+- 🟢 [Spring Básico](./documentacao/basico.md)
+- 🟡 [Spring Intermediário](./documentacao/intermediario.md)
+- 🔴 [Spring Avançado](./documentacao/avancado.md)
