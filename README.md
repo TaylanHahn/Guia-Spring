@@ -4,11 +4,16 @@ Este repositório tem como objetivo servir como **guia e referência de estudos 
 Reúne **conceitos essenciais**, **exemplos práticos** e **anotações organizadas**, facilitando o aprendizado e a consulta no dia a dia para quem desenvolve com **Spring e Java**.
 
 ### Sumário 
-🟢 [Spring Básico](./documentacao/basico.md)
+🟢 [Resumo > Spring Básico](./documentacao/basico.md)
 
-🟡 [Spring Intermediário](./documentacao/intermediario.md)
+🟡 [Resumo > Spring Intermediário](./documentacao/intermediario.md)
 
-🔴 [Spring Avançado](./documentacao/avancado.md)
+🔴 [Resumo > Spring Avançado](./documentacao/avancado.md)
+
+<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/spring/spring-original.svg" width="18" height="18"> [Ferramenta > Spring Initializr](./documentacao/initializr.md)
+
+<img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/spring/spring-original.svg" width="18" height="18"> [Documentação > Spring.io](https://spring.io/)
+
 
 ...
 
