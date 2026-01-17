@@ -15,6 +15,7 @@ Reúne **conceitos essenciais**, **exemplos práticos** e **anotações organiza
 <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/spring/spring-original.svg" width="18" height="18"> [Documentação > Spring.io](https://spring.io/)
 
 🧩 [Guia de Referência > Lombok](./documentacao/lombok.md)
+
 ...
 
 > **Contribuições são muito bem-vindas!** 💚  
