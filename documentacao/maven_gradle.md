@@ -1,17 +1,17 @@
-> Guia de Ferramentas 🛠️
+> Guia de Ferramenta 🛠️
 
-# 🧱 Maven & Gradle 🐘
+## 🧱 Maven & Gradle 🐘
 
-## ❓ O que eles resolvem?
+### ❓ O que eles resolvem?
 
-**Antigamente, para criar um projeto Java, você precisava:**
+Antigamente, para criar um projeto Java, você precisava:
 
 - Baixar dezenas de arquivos `.jar` de sites aleatórios
 - Colocar tudo em uma pasta `lib`
 - Configurar o **Classpath** manualmente
 - Resolver dependências transitivas “na unha” (descobrir e baixar uma por uma)
 
-## ⚙️ Como Maven e Gradle ajudam?
+### ⚙️ Como Maven e Gradle ajudam?
 
 Maven e Gradle automatizam todo esse processo, facilitando o desenvolvimento e padronizando builds.
 
