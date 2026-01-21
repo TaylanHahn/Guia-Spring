@@ -100,8 +100,7 @@ Toda a configuração do projeto reside no **Project Object Model (POM)**.
 
 ### 🧠 Filosofia: *Scriptável e Incremental*
 
-No Gradle, o **build é tratado como código**.  
-As configurações e tarefas são definidas usando uma linguagem de script:
+No Gradle, o **build é tratado como código**. As configurações e tarefas são definidas usando uma linguagem de script:
 
 - **Groovy DSL**
 - **Kotlin DSL**
