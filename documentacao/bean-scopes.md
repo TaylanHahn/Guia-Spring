@@ -107,12 +107,14 @@ public class CarrinhoCompras { ... }
 
 ## 📊 Resumo Visual
 
-| Escopo | Criação | Vida Útil | Uso Ideal |
-|---------|----------|------------|------------|
-| Singleton | 1 por App | Todo o tempo de execução | Services, Repositories (Stateless). |
-| Prototype | N por Injeção | Até perder referência | Beans com estado temporário. |
-| Request | 1 por HTTP Request | Milissegundos (Request-Response) | Logs de request, dados de form. |
-| Session | 1 por Usuário | Minutos/Horas (Sessão ativa) | Carrinho de compras, User Profile. |
+| Escopo      | Contexto | Criação (Quantidade)    | Vida Útil                                           | Uso Ideal                                                                                           |
+| ----------- | -------- | ----------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Singleton   | Core     | 1 por Container Spring  | Todo o tempo de execução da aplicação.              | Services, Repositories, Componentes de lógica sem estado.                                           |
+| Prototype   | Core     | N (1 a cada injeção)    | Até o objeto perder a referência (GC coleta).       | Beans com estado temporário ou não thread-safe.                                                     |
+| Request     | Web      | 1 por Requisição HTTP   | Milissegundos (Do request ao response).             | Logs de auditoria, dados de formulário específicos daquela chamada.                                 |
+| Session     | Web      | 1 por Sessão de Usuário | Minutos/Horas (Enquanto o navegador estiver ativo). | Carrinho de compras, Preferências do usuário logado, Wizard de passos.                              |
+| Application | Web      | 1 por ServletContext    | Todo o tempo que a aplicação Web estiver no ar.     | Contadores globais (ex: "X usuários online"), configurações globais que mudam em tempo de execução. |
+
 
 ---
 
