@@ -20,6 +20,9 @@ Foco em fundamentos, arquitetura de injeção de dependências e exposição RES
 
    O **Tomcat** *(ou Jetty/Undertow)* vem embutido no **JAR**. A aplicação não é "deployada" em um servidor, ela é o servidor.
 
+  ### `Bean Scopes`
+  Confira este tópico sobre ESCOPOS clicando 👉 [AQUI](./documentacao/bean-scopes.md)
+
 ---
 
 ## 2. Anotações de Configuração e Boot ⚙️
