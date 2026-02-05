@@ -1,4 +1,4 @@
-## <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" width="28" height="28"> Spring Boot & Ecossistema  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/spring/spring-original.svg" width="24" height="24">
+## <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" width="28" height="28"> Spring Framework com Spring Boot  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/spring/spring-original.svg" width="24" height="24">
 
 Este repositório atua como uma bússola técnica para o desenvolvimento Java moderno. Ele centraliza, de forma prática e organizada, desde os pilares da arquitetura (como IoC, Injeção de Dependências e Escopos) até a engenharia de build (Maven/Gradle). Um material projetado tanto para consolidar o aprendizado quanto para agilizar a consulta no dia a dia.
 
