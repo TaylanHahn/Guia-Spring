@@ -159,7 +159,7 @@ public void realizarCompra(Pedido pedido) {
 ````
 ---
 
-5. Tratamento Global de Exceções 🌐
+## 5. Tratamento Global de Exceções 🌐
 > Contexto: Web API — Uso: Profissional
 
 Não deixe o usuário receber um "Stack Trace" gigante com erro 500. Padronize os erros.
