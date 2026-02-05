@@ -26,6 +26,74 @@ Em vez de escrever DAOs manuais, estendemos interfaces.
 - `findByEmail(String email)` ⟶ Gera: `SELECT * FROM ... WHERE email = ?`
 - `existsByCpf(String cpf)` ⟶ Retorna booleano.
 
+### 🧩 1.1. O Poder dos Repositórios (Interfaces e Queries)
+> **Contexto:** Persistência | **Uso:** O coração do acesso a dados
+
+No Spring Data JPA, você não cria classes DAO implementando métodos manuais de JDBC. Você cria Interfaces e o Spring gera a implementação (Proxy) em tempo de execução.
+
+**A Hierarquia:** Geralmente estendemos `JpaRepository<Entidade, TipoID>`, pois ela já herda de `CrudRepository` (básico) e `PagingAndSortingRepository` (paginação), além de trazer métodos específicos da JPA (como `flush`).
+
+### 🔎 A. Query Methods (Consultas Derivadas)
+
+O Spring traduz o nome do método em SQL automaticamente. É ideal para consultas simples.
+
+### 🔎 Regra: verbo + Atributo + Condição
+
+| Nome do Método | SQL Gerado (Aproximado) |
+|----------------|-------------------------|
+| findByEmail(String email) | SELECT * FROM ... WHERE email = ? |
+| findByIdadeGreaterThan(Integer idade) | SELECT * FROM ... WHERE idade > ? |
+| findByNomeContaining(String parte) | SELECT * FROM ... WHERE nome LIKE %?% |
+| existsByCpf(String cpf) | SELECT COUNT(...) > 0 ... (Retorna boolean) |
+
+### 🧠 B. Consultas Personalizadas (`@Query`)
+
+Quando a lógica é complexa demais para o nome do método, usamos a anotação `@Query`.
+
+- **JPQL (Recomendado)**: SQL orientado a objetos. Usa o nome da Classe Java e seus atributos. É agnóstico ao banco de dados.
+
+- **Native Query**: SQL puro. Usa o nome da Tabela. Trava o código a um banco específico.
+  
+````java
+public interface PedidoRepository extends JpaRepository<Pedido, Long> {
+
+    // ✅ JPQL: Note "Pedido p" (Classe) em vez de "tb_pedido" (Tabela)
+    @Query("SELECT p FROM Pedido p WHERE p.status = 'PENDENTE' AND p.valor > :minimo")
+    List<Pedido> buscarPendentesValiosos(@Param("minimo") BigDecimal valor);
+
+    // ⚠️ NATIVE: SQL puro (Cuidado com portabilidade)
+    @Query(value = "SELECT * FROM tb_pedido WHERE data_pedido < NOW() - INTERVAL 1 YEAR", nativeQuery = true)
+    List<Pedido> limparPedidosAntigos();
+}
+````
+
+### 📄 C. Paginação e Ordenação
+
+Em aplicações reais, jamais faça `findAll()` em tabelas grandes. Use `Pageable`.
+
+- **No Repositório:** Receba `Pageable` e retorne `Page<T>`.
+- **No Controller/Service:** Monte o objeto `PageRequest`.
+````java
+// Repositório
+Page<Usuario> findByAtivoTrue(Pageable paginacao);
+
+// Service/Controller (Ex: Página 0, 10 itens, ordenado por nome)
+Pageable config = PageRequest.of(0, 10, Sort.by("nome"));
+Page<Usuario> pagina = repository.findByAtivoTrue(config);
+````
+
+### ✅ D. Boas Práticas de Retorno
+
+Evite retornar `null`. O Spring Data suporta nativamente o `Optional<T>`.
+````java
+// Repository
+Optional<Usuario> findByEmail(String email);
+
+// Service (Uso elegante, evita NullPointerException)
+Usuario user = repository.findByEmail(email)
+    .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+````
+
 ---
 
 ## 2. Validação de Dados (Bean Validation) 🔐
