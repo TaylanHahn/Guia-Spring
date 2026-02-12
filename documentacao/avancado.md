@@ -2,43 +2,136 @@
 # ☕🌱 | Avançado
 Foco: Segurança (Security), Testes Automatizados, Performance (Async/Cache) e Observabilidade.
 
-## 1. Segurança e Autenticação (Spring Security)🛡️
-> Contexto: Segurança — Uso: Obrigatório em Produção
+## 🛡️ 1. Segurança e Autenticação (Spring Security)
 
-O Spring Security é um framework poderoso de autenticação e autorização.
+Contexto: Segurança Avançada | Uso: Obrigatório para Proteção de Dados
 
-### O Padrão Stateless (JWT)
-Em APIs REST modernas, evitamos sessões no servidor (Stateful). Preferimos Tokens JWT (Json Web Tokens).
+O Spring Security funciona através de uma Cadeia de Filtros (Filter Chain). Imagine que antes da requisição chegar no seu Controller, ela precisa passar por vários portões de segurança. Se falhar em um, é rejeitada imediatamente.
 
-1. Usuário loga.
-2. Servidor gera um Token assinado.
-3. Cliente envia esse Token no Header (Authorization: Bearer <token>) em cada requisição.
+### 🧩 1.1. Arquitetura: As Peças do Quebra-Cabeça
 
-### Anotações Principais 🏷️
+Para implementar segurança real com banco de dados, você precisa entender 3 interfaces principais. O Spring não sabe como é a sua tabela Usuario, então você precisa "ensinar" a ele.
 
-| Anotação                   | Significado / Função                                              | Quando usar                                                                 |
-|----------------------------|-------------------------------------------------------------------|-----------------------------------------------------------------------------|
-| ***@EnableWebSecurity***         | Habilita a configuração customizada de segurança.                 | Na classe de configuração de segurança (ex: `SecurityConfig`).              |
-| ***@PreAuthorize***              | Restringe o acesso a um método com base em roles/permissões.       | Em `Controller` ou `Service`. Ex: `@PreAuthorize("hasRole('ADMIN')")`.       |
-| ***@AuthenticationPrincipal***   | Injeta o usuário autenticado diretamente no método.               | Quando é necessário saber quem está fazendo a requisição sem nova consulta ao banco. |
+| Interface | Função | Quem implementa? |
+|------------|----------|-------------------|
+| UserDetails | É o contrato de "Usuário" que o Spring entende. Define métodos como `getPassword()`, `getUsername()`, `isAccountNonExpired()`. | Sua Entidade Usuario ou uma classe Wrapper/Adapter. |
+| UserDetailsService | É o serviço que sabe buscar o usuário no banco. Tem um único método: `loadUserByUsername(String login)`. | Seu AuthenticationService. |
+| PasswordEncoder | Define como a senha é criptografada. Nunca guarde senhas em texto puro. | Geralmente usamos o `BCryptPasswordEncoder`. |
 
-***Exemplo de Configuração Moderna (Security Filter Chain)***
-Em versões recentes (Spring Boot 3+), não herdamos mais de WebSecurityConfigurerAdapter. Usa-se Beans:
-````java
-@Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    return http
-        .csrf(csrf -> csrf.disable()) // Desabilitar CSRF para APIs Stateless
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers(HttpMethod.POST, "/login").permitAll() // Libera login
-            .requestMatchers("/admin/**").hasRole("ADMIN") // Protege área admin
-            .anyRequest().authenticated() // Bloqueia o resto
-        )
-        .addFilterBefore(meuJwtFilter, UsernamePasswordAuthenticationFilter.class)
-        .build();
+### 🔐 1.2. Fluxo de Autenticação Stateless (JWT)
+
+Em APIs REST modernas, não mantemos sessão no servidor (memória). O "crachá" de acesso fica com o cliente.
+
+- 🔑 **Login:** O usuário envia user/pass. O servidor valida. Se OK, gera um Token JWT (assinado com uma chave secreta) e devolve.
+
+- 📩 **Requisições Seguintes:** O cliente envia o token no Header: `Authorization: Bearer abc123xyz...`
+
+- 🧪 **O Filtro Mágico:** Criamos um filtro (`OncePerRequestFilter`) que intercepta toda requisição, abre o token, valida a assinatura e diz ao Spring: "Este usuário é o João".
+
+### 🧩 1.3. A Configuração (SecurityFilterChain) - Atualizado Spring Boot 3
+
+A sintaxe mudou. Esqueça o `extends WebSecurityConfigurerAdapter`. Agora tudo é via `@Bean` e Lambda DSL.
+
+- 🧩 **Java**
+
+```java
+@Configuration
+@EnableWebSecurity
+public class SecurityConfiguration {
+
+    @Autowired
+    private SecurityFilter securityFilter; // Nosso filtro de token criado manualmente
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+            .csrf(csrf -> csrf.disable()) // Desabilita CSRF (inútil para API REST)
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sem sessão/cookies
+            .authorizeHttpRequests(req -> req
+                .requestMatchers(HttpMethod.POST, "/login").permitAll() // Login é público
+                .requestMatchers(HttpMethod.POST, "/users").permitAll() // Cadastro é público
+                .requestMatchers("/admin/**").hasRole("ADMIN") // Só Admin
+                .anyRequest().authenticated() // O resto exige login
+            )
+            .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class) // Insere nosso filtro antes do padrão
+            .build();
+    }
+
+    @Bean // Necessário para injetar o AuthenticationManager no Controller de Login
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
+    @Bean // Define a criptografia (Hash) da senha
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
 ````
+
+### 🔐 1.4. Tratamento de Senhas (Criptografia)
+
+Regra de Ouro: Senhas no banco de dados devem ser Hashes irreversíveis.
+
+- ❌ **Errado:** Salvar "123456".
+- ✅ **Certo:** Salvar $2a$10$wS.... (Resultado do BCrypt).
+
+Como usar:
+
+- 🧩 **Ao criar usuário:** `user.setSenha(passwordEncoder.encode(dto.senha()));`
+
+- 🧩 **Ao logar:** O Spring faz a comparação automaticamente usando o método `matches()`.
+
+### 🧠 1.5. O Contexto de Segurança (SecurityContextHolder)
+
+Se você precisar saber quem está logado em qualquer lugar do código (sem passar por parâmetro), o Spring guarda isso numa ThreadLocal.
+
+- 🧩 **Java**
+
+```java
+// Em qualquer Service ou Componente
+Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+String usuarioLogado = auth.getName(); // Pega o username do Token
+````
+
+### 🌐 1.6. CORS (Cross-Origin Resource Sharing)
+
+Alerta de Erro Comum: Se seu Front-end (Vue/React) rodar na porta 3000 e o Spring na 8080, o navegador bloqueia a requisição. Você precisa configurar o CORS no Spring Security.
+
+- 🧩 **Adicione no SecurityFilterChain:**
+
+```java
+.cors(cors -> cors.configurationSource(request -> {
+    var corsConfig = new CorsConfiguration();
+    corsConfig.setAllowedOrigins(List.of("http://localhost:3000"));
+    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+    corsConfig.setAllowedHeaders(List.of("*"));
+    return corsConfig;
+}))
+````
+
+### 🔒 1.7. Anotações de Método (Segurança Fina)
+
+1. Além da configuração global, você pode proteger métodos específicos.
+
+2. Habilite na classe main ou config: `@EnableMethodSecurity(securedEnabled = true)`
+
+Use nos métodos:
+
+| Anotação | Uso | Exemplo |
+|-----------|------|----------|
+| @PreAuthorize | O mais poderoso. Aceita SpEL (Spring Expression Language). | `@PreAuthorize("hasRole('ADMIN') or hasAuthority('GERENTE')")` |
+| @PostAuthorize | Executa o método, mas decide se retorna o resultado ou lança erro. | `@PostAuthorize("returnObject.owner == authentication.name")` (Só retorna se o dono do dado for quem tá logado). |
+
+
+## 🛡️ Resumo Visual do Fluxo Spring Security
+
+Request chega ➔ 2. SecurityFilter (JWT) valida token ➔ 3. SecurityContext é preenchido ➔ 4. AuthorizationFilter checa permissões (hasRole) ➔ 5. Controller executa.
+
+- ❌ **Se o passo 2 falhar (token inválido):** retorna 403 Forbidden.
+- ⛔ **Se o passo 4 falhar (usuário sem permissão):** retorna 403 Forbidden.
+- 🚫 **Se não enviar token:** retorna 401 Unauthorized.
+
 ---
 
 ## 2. Testes Automatizados (Testing) 🧪
