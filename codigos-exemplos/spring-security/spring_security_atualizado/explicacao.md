@@ -1,4 +1,4 @@
-> Documentação Técnica
+> 📚 Documentação
 
 ## Spring Security Moderno 🔐
 
